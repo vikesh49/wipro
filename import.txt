@@ -1,60 +1,24 @@
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
-public class ReflectionExample {
-    public static void main(String[] args) {
-        try {
-            // Get the SampleClass Class object
-            Class<?> clazz = SampleClass.class;
-
-            // Inspect the constructors
-            System.out.println("Constructors:");
-            Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-            for (Constructor<?> constructor : constructors) {
-                System.out.println(constructor);
-            }
-
-            // Inspect the fields
-            System.out.println("\nFields:");
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields) {
-                System.out.println(field);
-            }
-
-            // Inspect the methods
-            System.out.println("\nMethods:");
-            Method[] methods = clazz.getDeclaredMethods();
-            for (Method method : methods) {
-                System.out.println(method);
-            }
-
-            // Modify the access level of a private field and set its value during runtime
-            Field privateField = clazz.getDeclaredField("privateField");
-            privateField.setAccessible(true);  // Allow access to private field
-            SampleClass instance = new SampleClass();
-            privateField.set(instance, "New Value");
-
-            // Verify that the field value has been changed
-            System.out.println("\nModified private field value: " + instance.getPrivateField());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+package com.javaio;
+//To create a File
+import java.io.File;
+import java.io.IOException;
+ 
+public class FileExample {
+	public static void main(String[] args) throws IOException {
+	File f=new File("abc.txt");
+    System.out.println(f.exists());//false
+	f.createNewFile();// to create a file
+	System.out.println(f.exists());//true
+	/*
+	// Important Methods of file class
+	  f.exists();
+	  f.createNewFile();
+	  f.mkdir();
+	  f.isFile();
+	  f.isDirectory();
+	  f.list();//all files present in directory
+	  f.length();
+	  */
 }
-
-class SampleClass {
-    private String privateField;
-
-    public SampleClass() {
-        this.privateField = "Initial Value";
-    }
-
-    public String getPrivateField() {
-        return privateField;
-    }
-
-    private void privateMethod() {
-        System.out.println("This is a private method.");
-    }
 }
+has context menu
