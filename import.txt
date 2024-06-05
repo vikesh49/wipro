@@ -1,40 +1,50 @@
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
-public class NIOFileCopyExample {
+public class SimpleHttpClient {
     public static void main(String[] args) {
-        String inputFilePath = "path/to/your/inputFile.txt";  // Replace with the path to your input file
-        String outputFilePath = "path/to/your/outputFile.txt";  // Replace with the path to your output file
+        String urlString = "http://www.example.com";  // Replace with the URL you want to connect to
 
-        // Paths to the input and output files
-        Path inputPath = Paths.get(inputFilePath);
-        Path outputPath = Paths.get(outputFilePath);
+        try {
+            // Create a URL object
+            URL url = new URL(urlString);
 
-        // Size of the buffer
-        int bufferSize = 1024;
+            // Open a connection to the URL
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-        try (
-            // Open the input file channel
-            FileChannel inputChannel = FileChannel.open(inputPath, StandardOpenOption.READ);
-            // Open the output file channel
-            FileChannel outputChannel = FileChannel.open(outputPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)
-        ) {
-            // Allocate a buffer
-            ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+            // Set the request method (GET is the default)
+            connection.setRequestMethod("GET");
 
-            // Read from the input file and write to the output file
-            while (inputChannel.read(buffer) != -1) {
-                // Flip the buffer from write mode to read mode
-                buffer.flip();
-                // Write the buffer contents to the output file
-                outputChannel.write(buffer);
-                // Clear the buffer for the next read operation
-                buffer.clear();
+            // Get the response code
+            int responseCode = connection.getResponseCode();
+            System.out.println("Response Code: " + responseCode);
+
+            // Get the response headers
+            Map<String, List<String>> headers = connection.getHeaderFields();
+            System.out.println("Response Headers:");
+            for (Map.Entry<String, List<String>> header : headers.entrySet()) {
+                System.out.println(header.getKey() + ": " + String.join(", ", header.getValue()));
             }
+
+            // Get the response body
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+                response.append(System.lineSeparator());
+            }
+            in.close();
+
+            // Print the response body
+            System.out.println("Response Body:");
+            System.out.println(response.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
