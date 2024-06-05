@@ -1,24 +1,48 @@
-package com.javaio;
- 
-import java.io.File;
- 
-public class FileExample3 {
-	public static void main(String[] args) {
-		int count=0;
-		File f=new File("E:\\MariaFolder");
-		
-		String[] s=f.list();
-		for(String s1:s) {
-			File f1=new File(f,s1);
-			if(f1.isDirectory()) {
-				//if(f1.isFile()) {
-					count++;
-				System.out.println(s1);
-				}
-			
-			
-		}
-		System.out.println(count);
-	}
+import java.io.*;
+import java.util.*;
+
+public class WordFrequencyCounter {
+    public static void main(String[] args) {
+        // Check if input and output file names are provided
+        if (args.length < 2) {
+            System.out.println("Usage: java WordFrequencyCounter <input file> <output file>");
+            return;
+        }
+
+        String inputFileName = args[0];
+        String outputFileName = args[1];
+        
+        // Create a map to store word frequencies
+        Map<String, Integer> wordCountMap = new HashMap<>();
+
+        try (FileReader fileReader = new FileReader(inputFileName);
+             BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+            String line;
+
+            // Read lines from the file
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] words = line.split("\\W+");
+                for (String word : words) {
+                    if (word.isEmpty()) continue;
+                    word = word.toLowerCase();
+                    wordCountMap.put(word, wordCountMap.getOrDefault(word, 0) + 1);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading the input file: " + e.getMessage());
+        }
+
+        // Write the word frequencies to the output file
+        try (FileWriter fileWriter = new FileWriter(outputFileName);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            for (Map.Entry<String, Integer> entry : wordCountMap.entrySet()) {
+                bufferedWriter.write(entry.getKey() + ": " + entry.getValue());
+                bufferedWriter.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Error writing to the output file: " + e.getMessage());
+        }
+
+        System.out.println("Word frequency count completed. Check the output file: " + outputFileName);
+    }
 }
- 
