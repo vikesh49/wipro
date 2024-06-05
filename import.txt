@@ -1,26 +1,42 @@
-package com.javaio;
-//Read
- 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
- 
-public class DeserializationExample {
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+public class NIOFileCopyExample {
     public static void main(String[] args) {
-        Person person = null;
- 
-        try (FileInputStream fileIn = new FileInputStream("person.ser");
-             ObjectInputStream in = new ObjectInputStream(fileIn)) {
-            person = (Person) in.readObject();
-        } catch (IOException i) {
-            i.printStackTrace();
-        } catch (ClassNotFoundException c) {
-            System.out.println("Person class not found");
-            c.printStackTrace();
+        String inputFilePath = "path/to/your/inputFile.txt";  // Replace with the path to your input file
+        String outputFilePath = "path/to/your/outputFile.txt";  // Replace with the path to your output file
+
+        // Paths to the input and output files
+        Path inputPath = Paths.get(inputFilePath);
+        Path outputPath = Paths.get(outputFilePath);
+
+        // Size of the buffer
+        int bufferSize = 1024;
+
+        try (
+            // Open the input file channel
+            FileChannel inputChannel = FileChannel.open(inputPath, StandardOpenOption.READ);
+            // Open the output file channel
+            FileChannel outputChannel = FileChannel.open(outputPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)
+        ) {
+            // Allocate a buffer
+            ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+
+            // Read from the input file and write to the output file
+            while (inputChannel.read(buffer) != -1) {
+                // Flip the buffer from write mode to read mode
+                buffer.flip();
+                // Write the buffer contents to the output file
+                outputChannel.write(buffer);
+                // Clear the buffer for the next read operation
+                buffer.clear();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
- 
-        System.out.println("Deserialized Person...");
-        System.out.println(person);
     }
 }
-has context menu
