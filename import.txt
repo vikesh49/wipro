@@ -1,48 +1,64 @@
 import java.io.*;
-import java.util.*;
 
-public class WordFrequencyCounter {
+// Custom class that implements Serializable
+class Person implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
+    private String name;
+    private int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{name='" + name + "', age=" + age + "}";
+    }
+}
+
+public class SerializeDeserializeExample {
+    // Method to serialize the object
+    public static void serializeObject(Person person, String filename) {
+        try (FileOutputStream fileOut = new FileOutputStream(filename);
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(person);
+            System.out.println("Serialized data is saved in " + filename);
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
+
+    // Method to deserialize the object
+    public static Person deserializeObject(String filename) {
+        Person person = null;
+        try (FileInputStream fileIn = new FileInputStream(filename);
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            person = (Person) in.readObject();
+        } catch (IOException | ClassNotFoundException i) {
+            i.printStackTrace();
+        }
+        return person;
+    }
+
     public static void main(String[] args) {
-        // Check if input and output file names are provided
-        if (args.length < 2) {
-            System.out.println("Usage: java WordFrequencyCounter <input file> <output file>");
-            return;
-        }
+        Person person = new Person("John Doe", 30);
 
-        String inputFileName = args[0];
-        String outputFileName = args[1];
-        
-        // Create a map to store word frequencies
-        Map<String, Integer> wordCountMap = new HashMap<>();
+        // Serialize the object
+        String filename = "person.ser";
+        serializeObject(person, filename);
 
-        try (FileReader fileReader = new FileReader(inputFileName);
-             BufferedReader bufferedReader = new BufferedReader(fileReader)) {
-            String line;
-
-            // Read lines from the file
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] words = line.split("\\W+");
-                for (String word : words) {
-                    if (word.isEmpty()) continue;
-                    word = word.toLowerCase();
-                    wordCountMap.put(word, wordCountMap.getOrDefault(word, 0) + 1);
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading the input file: " + e.getMessage());
-        }
-
-        // Write the word frequencies to the output file
-        try (FileWriter fileWriter = new FileWriter(outputFileName);
-             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
-            for (Map.Entry<String, Integer> entry : wordCountMap.entrySet()) {
-                bufferedWriter.write(entry.getKey() + ": " + entry.getValue());
-                bufferedWriter.newLine();
-            }
-        } catch (IOException e) {
-            System.err.println("Error writing to the output file: " + e.getMessage());
-        }
-
-        System.out.println("Word frequency count completed. Check the output file: " + outputFileName);
+        // Deserialize the object
+        Person deserializedPerson = deserializeObject(filename);
+        System.out.println("Deserialized Person: " + deserializedPerson);
     }
 }
