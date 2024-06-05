@@ -2,17 +2,23 @@ package com.javaio;
  
 import java.io.File;
  
-// To list all the files and directory of given directory
-public class FileExample2 {
-public static void main(String[] args) {
-	File f=new File("E:\\MariaFolder");
-	int count=0;
-	String[] s=f.list();
-	for(String s1:s) {
-		count=count+1;
-		System.out.println(s1);
+public class FileExample3 {
+	public static void main(String[] args) {
+		int count=0;
+		File f=new File("E:\\MariaFolder");
+		
+		String[] s=f.list();
+		for(String s1:s) {
+			File f1=new File(f,s1);
+			if(f1.isDirectory()) {
+				//if(f1.isFile()) {
+					count++;
+				System.out.println(s1);
+				}
+			
+			
+		}
+		System.out.println(count);
 	}
-	System.out.println("Count of files "+count);
-}
 }
  
