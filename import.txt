@@ -1,29 +1,38 @@
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
+import java.time.ZoneId;
 import java.util.Scanner;
 
-public class DateDifferenceCalculator {
+public class TimezoneConverter {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        // Input date and time in the source timezone
+        System.out.print("Enter the date and time (yyyy-MM-dd HH:mm): ");
+        String dateTimeString = scanner.nextLine();
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
-        // Input first date
-        System.out.print("Enter the first date (yyyy-MM-dd): ");
-        String firstDateString = scanner.nextLine();
-        LocalDate firstDate = LocalDate.parse(firstDateString, formatter);
+        // Input source timezone
+        System.out.print("Enter the source timezone (e.g., America/New_York): ");
+        String sourceTimeZone = scanner.nextLine();
+        ZoneId sourceZoneId = ZoneId.of(sourceTimeZone);
 
-        // Input second date
-        System.out.print("Enter the second date (yyyy-MM-dd): ");
-        String secondDateString = scanner.nextLine();
-        LocalDate secondDate = LocalDate.parse(secondDateString, formatter);
+        // Input target timezone
+        System.out.print("Enter the target timezone (e.g., Europe/London): ");
+        String targetTimeZone = scanner.nextLine();
+        ZoneId targetZoneId = ZoneId.of(targetTimeZone);
 
-        // Calculate the number of days between the two dates
-        long daysBetween = ChronoUnit.DAYS.between(firstDate, secondDate);
+        // Convert the local date-time to the source timezone
+        ZonedDateTime sourceZonedDateTime = localDateTime.atZone(sourceZoneId);
 
-        System.out.println("The number of days between " + firstDate + " and " + secondDate + " is " + daysBetween + " days.");
+        // Convert the source date-time to the target timezone
+        ZonedDateTime targetZonedDateTime = sourceZonedDateTime.withZoneSameInstant(targetZoneId);
+
+        // Output the result
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z");
+        System.out.println("Converted date and time in " + targetTimeZone + ": " + targetZonedDateTime.format(formatter));
         
         scanner.close();
     }
