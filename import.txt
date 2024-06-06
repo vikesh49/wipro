@@ -1,127 +1,30 @@
-import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Scanner;
 
-public class TCPServerClient {
+public class DateDifferenceCalculator {
+
     public static void main(String[] args) {
-        if (args.length == 0) {
-            // Run as server
-            runAsServer();
-        } else if (args.length == 3) {
-            // Run as client
-            double num1 = Double.parseDouble(args[0]);
-            double num2 = Double.parseDouble(args[1]);
-            String operation = args[2];
-            runAsClient(num1, num2, operation);
-        } else {
-            System.err.println("Invalid arguments. Usage:");
-            System.err.println("Server mode: java TCPServerClient");
-            System.err.println("Client mode: java TCPServerClient <number1> <number2> <operation>");
-            System.exit(1);
-        }
-    }
+        Scanner scanner = new Scanner(System.in);
 
-    private static void runAsServer() {
-        int port = 12345;  // Port number to listen on
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server is listening on port " + port);
+        // Input first date
+        System.out.print("Enter the first date (yyyy-MM-dd): ");
+        String firstDateString = scanner.nextLine();
+        LocalDate firstDate = LocalDate.parse(firstDateString, formatter);
 
-            while (true) {
-                try (Socket socket = serverSocket.accept()) {
-                    System.out.println("Client connected");
+        // Input second date
+        System.out.print("Enter the second date (yyyy-MM-dd): ");
+        String secondDateString = scanner.nextLine();
+        LocalDate secondDate = LocalDate.parse(secondDateString, formatter);
 
-                    // Create input and output streams for the socket
-                    ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+        // Calculate the number of days between the two dates
+        long daysBetween = ChronoUnit.DAYS.between(firstDate, secondDate);
 
-                    // Read the CalculationRequest object from the client
-                    CalculationRequest request = (CalculationRequest) ois.readObject();
-
-                    // Perform the calculation
-                    double result = performCalculation(request);
-
-                    // Send the result back to the client
-                    oos.writeObject(result);
-                    oos.flush();
-
-                    System.out.println("Calculation result sent to client: " + result);
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void runAsClient(double num1, double num2, String operation) {
-        String hostname = "localhost";
-        int port = 12345;  // Port number to connect to
-
-        // Create a CalculationRequest object
-        CalculationRequest request = new CalculationRequest(num1, num2, operation);
-
-        try (Socket socket = new Socket(hostname, port)) {
-            System.out.println("Connected to the server");
-
-            // Create input and output streams for the socket
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-
-            // Send the CalculationRequest object to the server
-            oos.writeObject(request);
-            oos.flush();
-
-            // Receive the result from the server
-            double result = (double) ois.readObject();
-            System.out.println("Calculation result from server: " + result);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static double performCalculation(CalculationRequest request) {
-        double num1 = request.getNumber1();
-        double num2 = request.getNumber2();
-        String operation = request.getOperation();
-
-        switch (operation) {
-            case "+":
-                return num1 + num2;
-            case "-":
-                return num1 - num2;
-            case "*":
-                return num1 * num2;
-            case "/":
-                return num1 / num2;
-            default:
-                throw new IllegalArgumentException("Unknown operation: " + operation);
-        }
-    }
-}
-
-class CalculationRequest implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private double number1;
-    private double number2;
-    private String operation;
-
-    public CalculationRequest(double number1, double number2, String operation) {
-        this.number1 = number1;
-        this.number2 = number2;
-        this.operation = operation;
-    }
-
-    public double getNumber1() {
-        return number1;
-    }
-
-    public double getNumber2() {
-        return number2;
-    }
-
-    public String getOperation() {
-        return operation;
+        System.out.println("The number of days between " + firstDate + " and " + secondDate + " is " + daysBetween + " days.");
+        
+        scanner.close();
     }
 }
