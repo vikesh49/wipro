@@ -1,39 +1,34 @@
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.ZoneId;
-import java.util.Scanner;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
-public class TimezoneConverter {
-
+public class MySqlDatabaseConnection {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        // Database URL, Username, and Password
+        String url = "jdbc:mysql://localhost:3306/testdb"; // Replace 'testdb' with your database name
+        String username = "root"; // Replace with your database username
+        String password = "password"; // Replace with your database password
 
-        // Input date and time in the source timezone
-        System.out.print("Enter the date and time (yyyy-MM-dd HH:mm): ");
-        String dateTimeString = scanner.nextLine();
-        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        // Establish the connection
+        try {
+            // Load the MySQL JDBC driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
-        // Input source timezone
-        System.out.print("Enter the source timezone (e.g., America/New_York): ");
-        String sourceTimeZone = scanner.nextLine();
-        ZoneId sourceZoneId = ZoneId.of(sourceTimeZone);
+            // Create the connection
+            Connection connection = DriverManager.getConnection(url, username, password);
 
-        // Input target timezone
-        System.out.print("Enter the target timezone (e.g., Europe/London): ");
-        String targetTimeZone = scanner.nextLine();
-        ZoneId targetZoneId = ZoneId.of(targetTimeZone);
+            // Print the connection object
+            System.out.println("Connection successful!");
+            System.out.println("Connection object: " + connection);
 
-        // Convert the local date-time to the source timezone
-        ZonedDateTime sourceZonedDateTime = localDateTime.atZone(sourceZoneId);
-
-        // Convert the source date-time to the target timezone
-        ZonedDateTime targetZonedDateTime = sourceZonedDateTime.withZoneSameInstant(targetZoneId);
-
-        // Output the result
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm z");
-        System.out.println("Converted date and time in " + targetTimeZone + ": " + targetZonedDateTime.format(formatter));
-        
-        scanner.close();
+            // Close the connection
+            connection.close();
+        } catch (ClassNotFoundException e) {
+            System.out.println("MySQL JDBC driver not found.");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println("Connection failed.");
+            e.printStackTrace();
+        }
     }
 }
